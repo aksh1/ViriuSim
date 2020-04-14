@@ -71,7 +71,7 @@ public class Block {
     }
 
     public void setColor() {
-        if (infected == 0){
+        if (infected <= 0){
             color = Color.GREEN;
         }
         else if (infected/population >= 0.75){
