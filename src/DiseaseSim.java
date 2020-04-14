@@ -2,16 +2,22 @@
 public class DiseaseSim {
 
     //Simulation Time
-    private static final int SIMULATION_LENGTH = 10;
+    private int simulation_length = 10;
 
     private Disease corona;
     private Block[][] country;
 
-    public DiseaseSim() {
-        corona = new Disease(20, 0); // 20% chance of infection p/ interaction, 0% chance of death p/ day
+    public DiseaseSim(ConfigLoader cfgLoader) {
+    	this.loadFromConfiguration(cfgLoader);
+    	corona = new Disease();
+        corona.loadFromConfiguration(cfgLoader);
         country = new Block[3][3];
     }
 
+    public void loadFromConfiguration(ConfigLoader cfgLoader) {
+    	cfgLoader.loadSection("simulation", DiseaseSim.class, this);
+    	System.out.println("Configured values:\n  simulation_length = "+simulation_length);
+    }
 
     public void runSim() {
         for (int x = 0; x < country.length; x++) {
@@ -20,7 +26,7 @@ public class DiseaseSim {
                 country[x][y] = new Block((int) (Math.random() * 500 + 500));
             }
         }
-        for (int i = 0; i < SIMULATION_LENGTH; i++) {
+        for (int i = 0; i < simulation_length; i++) {
             cycle(country, corona);
         }
     }

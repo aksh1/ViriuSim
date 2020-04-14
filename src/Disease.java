@@ -1,13 +1,12 @@
-
 public class Disease {
+	String name;
     int infectionRate;
     int lethality;// didn't implement this yet
 
-    public Disease(int rate, int lethal) {
-        infectionRate = rate;
-        lethality = lethal;
+    public void loadFromConfiguration(ConfigLoader cfgLoader) {
+    	cfgLoader.loadSection("disease", Disease.class, this);
+    	System.out.println("Configured values:\n  name = "+name+"\n  infectionRate = "+infectionRate+"\n  lethality = "+lethality);
     }
-
 
     //use the following getters/setters to take into account mutation
     public int getInfectionRate() {
