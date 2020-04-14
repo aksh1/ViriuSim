@@ -1,3 +1,4 @@
+import java.awt.Color;
 
 public class Block {
 
@@ -5,6 +6,7 @@ public class Block {
     private int infected;
     private int interactions;
     private int dead;
+    private Color color;
 
     public Block(int population) {
         setPopulation(population);
@@ -62,5 +64,21 @@ public class Block {
 
     public void setInteractions(int interactions) {
         this.interactions = interactions;
+    }
+    
+    public Color getColor() {
+        return color;
+    }
+
+    public void setColor() {
+        if (infected == 0){
+            color = Color.GREEN;
+        }
+        else if (infected/population >= 0.75){
+            color = Color.RED;
+        }
+        else{
+            color = new Color (235, 235-((infected/population)*200), 52);
+        }
     }
 }
