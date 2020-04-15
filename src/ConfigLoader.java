@@ -38,6 +38,8 @@ public class ConfigLoader {
 					field.setInt(instance, Integer.valueOf(valueString));
 				} else if (fieldType == String.class) {
 					field.set(instance, valueString);
+				} else if (fieldType == double.class) {
+					field.setDouble(instance, Double.valueOf(valueString));
 				} else {
 					System.err.println("section \""+sectionName+"\", unsupported type "+fieldType+" for key \""+key+"\"");
 				}

@@ -15,7 +15,7 @@ public class Block {
     }
 
     public int calculateInfection(Disease disease) {
-        int infected = getInfected() * getInteractions() * disease.getInfectionRate() / 100;
+        int infected = (int)(getInfected() * getInteractions() * disease.getInfectionRate());
 
         if (getInfected() + infected > getPopulation()) {
             infected = getPopulation() - getInfected();

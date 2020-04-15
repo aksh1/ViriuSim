@@ -1,7 +1,7 @@
 public class Disease {
 	String name;
-    int infectionRate;
-    int lethality;// didn't implement this yet
+    double infectionRate;
+    double lethality;// didn't implement this yet
 
     public void loadFromConfiguration(ConfigLoader cfgLoader) {
     	cfgLoader.loadSection("disease", Disease.class, this);
@@ -9,7 +9,7 @@ public class Disease {
     }
 
     //use the following getters/setters to take into account mutation
-    public int getInfectionRate() {
+    public double getInfectionRate() {
         return infectionRate;
     }
 
@@ -17,7 +17,7 @@ public class Disease {
         this.infectionRate = infectionRate;
     }
 
-    public int getLethality() {
+    public double getLethality() {
         return lethality;
     }
 
