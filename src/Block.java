@@ -48,15 +48,13 @@ public class Block extends Component{
 	}
 
 	public Color getColor() {
-        if (percentInfected() <= 10){
+        if (percentInfected() <= 5){
             return Color.GREEN;
         }
-        else if (percentInfected() >= 0.75){
+        else if (percentInfected() >= 90){
             return Color.RED;
         }
-        else{
-            return new Color (235, 235-((getInfected()/getPopulation())*200), 52);
-        }
+        return new Color (161, (int) ((255-(percentInfected() * 2))), 68);
     }
 	
 	// changes

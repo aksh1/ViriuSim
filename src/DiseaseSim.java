@@ -77,7 +77,7 @@ public class DiseaseSim extends JPanel {
             	blocks[layer][x][y].copyBlock(blocks[prevLayer][x][y]);
                 calculateInnerInfection(blocks[layer][x][y], blocks[prevLayer][x][y]);
                 calculateOuterInfection(blocks, layer, prevLayer, x, y);
-
+				System.out.println("Block (" + x + "," + y + ") is " + blocks[layer][x][y].percentInfected() + " infected");
                 currentLayer = layer;
             }
         }
