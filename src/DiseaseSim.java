@@ -9,6 +9,8 @@ public class DiseaseSim extends JPanel {
     private int gridDuration = 2;
     private int gridWidth = 10;
     private int gridHeight = 10;
+
+    private int currentLayer = 0;
     
     private Disease disease;
     private Block[][][] country;
@@ -47,7 +49,7 @@ public class DiseaseSim extends JPanel {
 	    	int previousLayer = i % gridDuration;
 	    	int layer = (i + 1) % gridDuration;
             try {
-				cycle(country, layer, previousLayer, getGraphics());
+				cycle(country, layer, previousLayer);
 				System.out.println("Cycle #"+(i+1));
 				showBlocks(country[layer]);
 				System.out.println("");
@@ -57,16 +59,26 @@ public class DiseaseSim extends JPanel {
         }
     }
 
+	@Override
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		for (int x = 0; x < country[currentLayer].length; x++) {
+			for (int y = 0; y < country[currentLayer][x].length; y++) {
+				country[currentLayer][x][y].draw(g, (x * 50), (y * 50) );
+			}
+		}
+	}
 
 	//"infects" the blocks
-    private void cycle(final Block[][][] blocks, int layer, int prevLayer, Graphics g) throws Exception {
+    private void cycle(final Block[][][] blocks, int layer, int prevLayer) throws Exception {
+    	Thread.sleep(1000);
         for (int x = 0; x < blocks[layer].length; x++) {
             for (int y = 0; y < blocks[layer][x].length; y++) {
             	blocks[layer][x][y].copyBlock(blocks[prevLayer][x][y]);
                 calculateInnerInfection(blocks[layer][x][y], blocks[prevLayer][x][y]);
                 calculateOuterInfection(blocks, layer, prevLayer, x, y);
 
-                blocks[layer][x][y].draw(g, x *50, y * 50);
+                currentLayer = layer;
             }
         }
         this.repaint();

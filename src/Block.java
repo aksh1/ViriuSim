@@ -89,8 +89,9 @@ public class Block extends Component{
     }
 
     public void draw(Graphics g, int x, int y) {
+        g.setColor(Color.BLACK);
+        g.drawRect(x,y,50,50);
         g.setColor(getColor());
-        g.fillRect(50,50,50,50);
-        System.out.println("drew");
+        g.fillRect(x,y,50,50);
     }
 }
