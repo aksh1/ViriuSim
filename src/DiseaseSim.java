@@ -1,5 +1,7 @@
+import javax.swing.*;
+import java.awt.*;
 
-public class DiseaseSim {
+public class DiseaseSim extends JPanel {
 
     //Simulation Time
     private int simulationLength = 10;
@@ -16,7 +18,12 @@ public class DiseaseSim {
     	disease = new Disease();
         disease.loadFromConfiguration(cfgLoader);
         country = new Block[gridDuration][gridWidth][gridHeight];
-    }
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
 
     public void loadFromConfiguration(ConfigLoader cfgLoader) {
     	cfgLoader.loadSection("simulation", DiseaseSim.class, this);
@@ -40,7 +47,7 @@ public class DiseaseSim {
 	    	int previousLayer = i % gridDuration;
 	    	int layer = (i + 1) % gridDuration;
             try {
-				cycle(country, layer, previousLayer);
+				cycle(country, layer, previousLayer, getGraphics());
 				System.out.println("Cycle #"+(i+1));
 				showBlocks(country[layer]);
 				System.out.println("");
@@ -50,19 +57,19 @@ public class DiseaseSim {
         }
     }
 
-    //"infects" the blocks
-    private void cycle(final Block[][][] blocks, int layer, int prevLayer) throws Exception {
+
+	//"infects" the blocks
+    private void cycle(final Block[][][] blocks, int layer, int prevLayer, Graphics g) throws Exception {
         for (int x = 0; x < blocks[layer].length; x++) {
             for (int y = 0; y < blocks[layer][x].length; y++) {
             	blocks[layer][x][y].copyBlock(blocks[prevLayer][x][y]);
                 calculateInnerInfection(blocks[layer][x][y], blocks[prevLayer][x][y]);
                 calculateOuterInfection(blocks, layer, prevLayer, x, y);
-                
-//                calculateDeath(blocks[layer][x][y]);
-//                calculateHealthy(blocks[layer][x][y]);
-//                calculateInteraction(blocks[layer][x][y]);
+
+                blocks[layer][x][y].draw(g, x *50, y * 50);
             }
         }
+        this.repaint();
     }
     
     private void calculateInnerInfection(Block block, Block prevBlock) throws Exception {

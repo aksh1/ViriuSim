@@ -1,6 +1,6 @@
-import java.awt.Color;
+import java.awt.*;
 
-public class Block {
+public class Block extends Component{
 
     private int healthy;
     private int infected;
@@ -48,10 +48,10 @@ public class Block {
 	}
 
 	public Color getColor() {
-        if (getInfected() <= 0){
+        if (percentInfected() <= 10){
             return Color.GREEN;
         }
-        else if (getInfected()/getPopulation() >= 0.75){
+        else if (percentInfected() >= 0.75){
             return Color.RED;
         }
         else{
@@ -83,4 +83,14 @@ public class Block {
 		infected  -= newlyRecoveredCount;
 		recovered += newlyRecoveredCount;
 	}
+
+	public double percentInfected () {
+        return (double) getInfected()/getPopulation() * 100;
+    }
+
+    public void draw(Graphics g, int x, int y) {
+        g.setColor(getColor());
+        g.fillRect(50,50,50,50);
+        System.out.println("drew");
+    }
 }
