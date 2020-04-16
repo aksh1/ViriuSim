@@ -2,41 +2,95 @@
 public class DiseaseSim {
 
     //Simulation Time
-    private int simulation_length = 10;
-
-    private Disease corona;
-    private Block[][] country;
+    private int simulationLength = 10;
+    
+    private int gridDuration = 2;
+    private int gridWidth = 10;
+    private int gridHeight = 10;
+    
+    private Disease disease;
+    private Block[][][] country;
 
     public DiseaseSim(ConfigLoader cfgLoader) {
     	this.loadFromConfiguration(cfgLoader);
-    	corona = new Disease();
-        corona.loadFromConfiguration(cfgLoader);
-        country = new Block[3][3];
+    	disease = new Disease();
+        disease.loadFromConfiguration(cfgLoader);
+        country = new Block[gridDuration][gridWidth][gridHeight];
     }
 
     public void loadFromConfiguration(ConfigLoader cfgLoader) {
     	cfgLoader.loadSection("simulation", DiseaseSim.class, this);
-    	System.out.println("Configured values:\n  simulation_length = "+simulation_length);
+    	System.out.println("Configured values:\n  simulation_length = "+simulationLength);
     }
 
     public void runSim() {
-        for (int x = 0; x < country.length; x++) {
-            for (int y = 0; y < country[x].length; y++) {
-                // population for each block in between 500 and 1000
-                country[x][y] = new Block((int) (Math.random() * 500 + 500));
-            }
-        }
-        for (int i = 0; i < simulation_length; i++) {
-            cycle(country, corona);
+    	for (int i = 0; i < gridDuration; i++) {
+	        for (int x = 0; x < country[i].length; x++) {
+	            for (int y = 0; y < country[i][x].length; y++) {
+	                // population for each block in between 500 and 1000
+	            	if (i == 0) {
+	            		country[i][x][y] = new Block(disease, (int) (Math.random() * 500 + 500));
+	            	} else {
+	            		country[i][x][y] = new Block();
+	            	}
+	            }
+	        }
+    	}
+	    for (int i = 0; i < simulationLength; i++) {
+	    	int previousLayer = i % gridDuration;
+	    	int layer = (i + 1) % gridDuration;
+            try {
+				cycle(country, layer, previousLayer);
+				System.out.println("Cycle #"+(i+1));
+				showBlocks(country[layer]);
+				System.out.println("");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
         }
     }
 
     //"infects" the blocks
-    private void cycle(final Block[][] blocks, final Disease disease) {
-        for (int x = 0; x < blocks.length; x++) {
-            for (int y = 0; y < blocks[x].length; y++) {
-                System.out.println("Newly infected in block " + x + ", " + y + ": " + blocks[x][y].calculateInfection(disease));
+    private void cycle(final Block[][][] blocks, int layer, int prevLayer) throws Exception {
+        for (int x = 0; x < blocks[layer].length; x++) {
+            for (int y = 0; y < blocks[layer][x].length; y++) {
+            	blocks[layer][x][y].copyBlock(blocks[prevLayer][x][y]);
+                calculateInnerInfection(blocks[layer][x][y], blocks[prevLayer][x][y]);
+                calculateOuterInfection(blocks, layer, prevLayer, x, y);
+                
+//                calculateDeath(blocks[layer][x][y]);
+//                calculateHealthy(blocks[layer][x][y]);
+//                calculateInteraction(blocks[layer][x][y]);
             }
         }
+    }
+    
+    private void calculateInnerInfection(Block block, Block prevBlock) throws Exception {
+        block.peopleGetSick((int)(prevBlock.getHealthy() * disease.getInteractionRate() * disease.getInfectionRate()));
+    }
+    
+    private void calculateOuterInfection(Block[][][] blocks, int layer, int prevLayer, int targetX, int targetY) throws Exception {
+    	int travelers = 0;
+    	for (int x = Math.max(targetX - 1, 0); x < Math.min(x + 2, blocks[prevLayer].length); x++) {
+    		for (int y = Math.max(targetY - 1, 0); y < Math.min(y + 2, blocks[prevLayer][x].length) ; y++) {
+    			if (blocks[prevLayer][x][y] != null && (x != targetX || y != targetY)) {
+    				travelers += blocks[prevLayer][x][y].getInfected() * disease.getTravelRate();
+    			}
+    		}
+    	}
+    	blocks[layer][targetX][targetY].peopleGetSick(Math.min((int)(travelers * disease.getInfectionRate()), blocks[layer][targetX][targetY].getHealthy()));
+    }
+    
+    private void showBlocks(Block[][] blocks) {
+    	for (int i=0; i < blocks.length; ++i) {
+    		for (int j=0; j < blocks[i].length; ++j) {
+    			System.out.print(String.format("  (%3d, %3d, %3d, %3d)", 
+    					blocks[i][j].getHealthy(),
+    					blocks[i][j].getInfected(),
+    					blocks[i][j].getRecovered(),
+    					blocks[i][j].getDead()));
+    		}
+    		System.out.println("");
+    	}
     }
 }
