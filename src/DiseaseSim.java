@@ -101,7 +101,7 @@ public class DiseaseSim extends JPanel {
     		}
     	}
     	blocks[layer][targetX][targetY].peopleGetSick(Math.min((int)(travelers * disease.getInfectionRate()), blocks[layer][targetX][targetY].getHealthy()));
-    }
+    } 
     
     private void calculateRecovery(Block block, Block prevBlock) throws Exception {
     	block.peopleRecover((int)(disease.getRecoveryRate() * prevBlock.getInfected()));
