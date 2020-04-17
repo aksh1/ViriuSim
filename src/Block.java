@@ -3,15 +3,18 @@ import java.awt.*;
 public class Block extends Component{
 
     private int healthy;
-    private int infected;
+    private int[] infectedCohort;
     private int dead;
     private int recovered;
     private Disease disease;
+    private int initPopulation;
 
     public Block(Disease disease, int population) {
     	this.disease = disease;
-        infected = (int) (Math.random() * disease.getMaxInitialInfected()); // 0 <= infected < max initial infected
-        healthy = Math.max(population - infected, 0);
+        infectedCohort = new int[disease.getMaxSickDays()];
+    	infectedCohort[0] = (int) (Math.random() * disease.getMaxInitialInfected()); // 0 <= infected < max initial infected
+        healthy = Math.max(population - infectedCohort[0], 0);
+        initPopulation = population;
         dead = 0;
         recovered = 0;
     }
@@ -19,11 +22,19 @@ public class Block extends Component{
     public Block() {} //intentionally empty
 
     public void copyBlock(Block that) {
-    	healthy = that.healthy;
-    	infected = that.infected;
-    	dead = that.dead;
-    	recovered = that.recovered;
     	disease = that.disease;
+    	if (infectedCohort == null) {
+    		infectedCohort = new int[disease.getMaxSickDays()];
+    	}
+    	infectedCohort[0] = 0;
+    	for (int i = 1; i < disease.getMaxSickDays(); i++) {
+    		infectedCohort[i] = that.infectedCohort[i - 1];
+    	}
+    	
+    	healthy = that.healthy;
+    	dead = that.dead;
+    	recovered = that.recovered + that.infectedCohort[that.infectedCohort.length - 1];
+    	initPopulation = that.initPopulation;
     }
     
     //Getters
@@ -32,11 +43,15 @@ public class Block extends Component{
     }
 
     public int getPopulation() {
-        return getHealthy() + getInfected();
+        return getHealthy() + getInfected() + getRecovered();
     }
 
     public int getInfected() {
-        return infected;
+        int sum = 0;
+    	for (int i = 0; i < infectedCohort.length; i++) {
+        	sum += infectedCohort[i];
+        }
+    	return sum;
     }
     
     public int getHealthy() {
@@ -48,13 +63,11 @@ public class Block extends Component{
 	}
 
 	public Color getColor() {
-        if (percentInfected() <= 5){
-            return Color.GREEN;
-        }
-        else if (percentInfected() >= 90){
-            return Color.RED;
-        }
-        return new Color (161, (int) ((255-(percentInfected() * 2))), 68);
+		double r = percentInfected() / 100;
+		double g = percentHealthy() / 100;
+		double b = percentRecovered() / 100;
+		double d = 1 - percentDead() / 100;
+        return new Color ((int)(255 * r * d), (int)(255 * g * d), (int)(255 * b * d));
     }
 	
 	// changes
@@ -63,33 +76,44 @@ public class Block extends Component{
 			throw new Exception("can't have more sick than healthy");
 		}
 		healthy  -= newlySickCount;
-		infected += newlySickCount;
+		infectedCohort[0] += newlySickCount;
 	}
 	
-	public void peopleDie(int newlyDeadCount) throws Exception {
+	public void peopleDie(int cohortNum, int newlyDeadCount) throws Exception {
 		if (newlyDeadCount > getInfected()) {
 			throw new Exception("can't have more dead than infected");
 		}
-		infected -= newlyDeadCount;
-		dead     += newlyDeadCount;
+		infectedCohort[cohortNum] -= newlyDeadCount;
+		dead += newlyDeadCount;
 	}
 	
-	public void peopleRecover(int newlyRecoveredCount) throws Exception {
+	public void peopleRecover(int cohortNum, int newlyRecoveredCount) throws Exception {
 		if (newlyRecoveredCount > getInfected()) {
 			throw new Exception("can't have more recovered than infected");
 		}
-		infected  -= newlyRecoveredCount;
+		infectedCohort[cohortNum] -= newlyRecoveredCount;
 		recovered += newlyRecoveredCount;
 	}
 
-	public double percentInfected () {
+	public double percentHealthy() {
+        return (double) getHealthy()/getPopulation() * 100;
+    }
+	
+	public double percentInfected() {
         return (double) getInfected()/getPopulation() * 100;
     }
+	
+	public double percentDead() {
+		return (double) getDead()/initPopulation * 100;
+	}
+	
+	public double percentRecovered() {
+		return (double) getRecovered()/getPopulation() * 100;
+	}
 
-    public void draw(Graphics g, int x, int y) {
-        g.setColor(Color.BLACK);
-        g.drawRect(x,y,50,50);
-        g.setColor(getColor());
-        g.fillRect(x,y,50,50);
-    }
+	public int getInfectedCohort(int i) {
+		return infectedCohort[i];
+	}
+	
+	
 }

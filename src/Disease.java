@@ -4,11 +4,14 @@ public class Disease {
     private double interactionRate;
     private double travelRate;
     private double recoveryRate;
-    private double lethality;// didn't implement this yet
+    private double lethality;
+    private int incubationDays = 5;
+    private int maxSickDays = 10;
     private int maxInitialInfected = 10;
+    private int randomInitialInfected = 0;
 
-    public void loadFromConfiguration(ConfigLoader cfgLoader) {
-    	cfgLoader.loadSection("disease", Disease.class, this);
+    public void loadFromConfiguration(ConfigLoader cfgLoader, String presetName) {
+    	cfgLoader.loadSection(presetName, Disease.class, this);
     	System.out.println("Configured values:\n  name = "+name+"\n  infectionRate = "+infectionRate+"\n  lethality = "+lethality);
     }
 
@@ -75,5 +78,31 @@ public class Disease {
 	public void setTravelRate(double travelRate) {
 		this.travelRate = travelRate;
 	}
+
+	public int getRandomInitialInfected() {
+		return randomInitialInfected;
+	}
+
+	public void setRandomInitialInfected(int randomInitialInfected) {
+		this.randomInitialInfected = randomInitialInfected;
+	}
+
+	public int getMaxSickDays() {
+		return maxSickDays;
+	}
+
+	public void setMaxSickDays(int maxSickDays) {
+		this.maxSickDays = maxSickDays;
+	}
+
+	public int getIncubationDays() {
+		return incubationDays;
+	}
+
+	public void setIncubationDays(int incubationDays) {
+		this.incubationDays = incubationDays;
+	}
+	
+	
 	
 }

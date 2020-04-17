@@ -38,7 +38,7 @@ public class Runner {
 //
 		JMenuBar menuBar = new JMenuBar();
 
-		JMenu menu = new JMenu("Simple Paint");
+		JMenu menu = new JMenu("Options");
 		JMenuItem menuItem = new JMenuItem("Quit");
 
 		menuItem.addActionListener(new ActionListener() {
@@ -54,7 +54,7 @@ public class Runner {
 
 		window.setJMenuBar(menuBar);
 		window.setContentPane(sim);
-		window.setSize(250,400);
+		window.setSize(sim.getBlockSize() * sim.getGridWidth(), sim.getBlockSize() * (sim.getGridHeight() + 1));
 		window.setLocation(100,100);
 		window.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
 		window.setVisible(true);

@@ -3,14 +3,17 @@ import java.awt.*;
 
 public class DiseaseSim extends JPanel {
 
+	private String diseasePreset;
+	private boolean verbose = false;
     //Simulation Time
     private int simulationLength = 10;
     
     private int gridDuration = 2;
     private int gridWidth = 10;
     private int gridHeight = 10;
-
-    private int currentLayer = 0;
+    private int blockSize = 50;
+    
+    private int currentLayer = -1;
     private int cycleWait = 1000;
     
     private Disease disease;
@@ -19,13 +22,8 @@ public class DiseaseSim extends JPanel {
     public DiseaseSim(ConfigLoader cfgLoader) {
     	this.loadFromConfiguration(cfgLoader);
     	disease = new Disease();
-        disease.loadFromConfiguration(cfgLoader);
+        disease.loadFromConfiguration(cfgLoader, diseasePreset);
         country = new Block[gridDuration][gridWidth][gridHeight];
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 	}
 
     public void loadFromConfiguration(ConfigLoader cfgLoader) {
@@ -39,34 +37,48 @@ public class DiseaseSim extends JPanel {
 	            for (int y = 0; y < country[i][x].length; y++) {
 	                // population for each block in between 500 and 1000
 	            	if (i == 0) {
-	            		country[i][x][y] = new Block(disease, (int) (Math.random() * 500 + 500));
+	            		country[i][x][y] = new Block(disease, (int) (Math.random() * 10000 + 500));
 	            	} else {
 	            		country[i][x][y] = new Block();
 	            	}
 	            }
 	        }
     	}
-	    for (int i = 0; i < simulationLength; i++) {
-	    	int previousLayer = i % gridDuration;
-	    	int layer = (i + 1) % gridDuration;
-            try {
+    	try {
+	    	for (int i = 0; i < disease.getRandomInitialInfected(); i++) {
+	    		int x = (int)(Math.random() * gridWidth);
+	    		int y = (int)(Math.random() * gridHeight);
+	    		country[0][x][y].peopleGetSick(1);
+	    	}
+		    for (int i = 0; i < simulationLength; i++) {
+		    	int previousLayer = i % gridDuration;
+		    	int layer = (i + 1) % gridDuration;
             	Thread.sleep(cycleWait);
 				cycle(country, layer, previousLayer);
-				System.out.println("Cycle #"+(i+1));
-				showBlocks(country[layer]);
-				System.out.println("");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-        }
+				if (isVerbose()) {
+					System.out.println("Cycle #"+(i+1));
+					showBlocks(country[layer]);
+					System.out.println("");
+				}
+	        }
+    	} catch (Exception e) {
+			e.printStackTrace();
+		}
     }
 
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		for (int x = 0; x < country[currentLayer].length; x++) {
-			for (int y = 0; y < country[currentLayer][x].length; y++) {
-				country[currentLayer][x][y].draw(g, (x * 50), (y * 50) );
+		if (currentLayer >= 0) {
+			for (int x = 0; x < country[currentLayer].length; x++) {
+				for (int y = 0; y < country[currentLayer][x].length; y++) {
+					int pixelX = x * blockSize;
+					int pixelY = y * blockSize;
+					g.setColor(Color.BLACK);
+			        g.drawRect(pixelX - 1,pixelY - 1,blockSize,blockSize);
+			        g.setColor(country[currentLayer][x][y].getColor());
+			        g.fillRect(pixelX,pixelY,blockSize,blockSize);
+				}
 			}
 		}
 	}
@@ -78,9 +90,11 @@ public class DiseaseSim extends JPanel {
             	blocks[layer][x][y].copyBlock(blocks[prevLayer][x][y]);
                 calculateInnerInfection(blocks[layer][x][y], blocks[prevLayer][x][y]);
                 calculateOuterInfection(blocks, layer, prevLayer, x, y);
-                calculateRecovery(blocks[layer][x][y], blocks[prevLayer][x][y]);
-                calculateDeath(blocks[layer][x][y], blocks[prevLayer][x][y]);
-				System.out.println("Block (" + x + "," + y + ") is " + blocks[layer][x][y].percentInfected() + " infected");
+                calculateRecovery(blocks[layer][x][y]);
+                calculateDeath(blocks[layer][x][y]);
+                if (isVerbose()) {
+                	System.out.println("Block (" + x + "," + y + ") is " + blocks[layer][x][y].percentInfected() + " infected");
+                }
                 currentLayer = layer;
             }
         }
@@ -88,27 +102,32 @@ public class DiseaseSim extends JPanel {
     }
     
     private void calculateInnerInfection(Block block, Block prevBlock) throws Exception {
-        block.peopleGetSick((int)(prevBlock.getHealthy() * disease.getInteractionRate() * disease.getInfectionRate()));
+        block.peopleGetSick(Math.min(getAffected(prevBlock.getInfected(), disease.getInteractionRate() * disease.getInfectionRate()), prevBlock.getHealthy()));
     }
     
     private void calculateOuterInfection(Block[][][] blocks, int layer, int prevLayer, int targetX, int targetY) throws Exception {
     	int travelers = 0;
-    	for (int x = Math.max(targetX - 1, 0); x < Math.min(x + 2, blocks[prevLayer].length); x++) {
-    		for (int y = Math.max(targetY - 1, 0); y < Math.min(y + 2, blocks[prevLayer][x].length) ; y++) {
+    	for (int x = Math.max(targetX - 1, 0); x < Math.min(targetX + 2, blocks[prevLayer].length); x++) {
+    		for (int y = Math.max(targetY - 1, 0); y < Math.min(targetY + 2, blocks[prevLayer][x].length) ; y++) {
     			if (blocks[prevLayer][x][y] != null && (x != targetX || y != targetY)) {
     				travelers += blocks[prevLayer][x][y].getInfected() * disease.getTravelRate();
     			}
     		}
     	}
-    	blocks[layer][targetX][targetY].peopleGetSick(Math.min((int)(travelers * disease.getInfectionRate()), blocks[layer][targetX][targetY].getHealthy()));
+    	blocks[layer][targetX][targetY].peopleGetSick(Math.min(getAffected(travelers, disease.getInfectionRate()), 
+    			                                               blocks[layer][targetX][targetY].getHealthy()));
     } 
     
-    private void calculateRecovery(Block block, Block prevBlock) throws Exception {
-    	block.peopleRecover((int)(disease.getRecoveryRate() * prevBlock.getInfected()));
+    private void calculateRecovery(Block block) throws Exception {
+    	for (int i = disease.getIncubationDays(); i < disease.getMaxSickDays(); i++) {
+    		block.peopleRecover(i, getAffected(block.getInfectedCohort(i), disease.getRecoveryRate()));
+    	}
     }
     
-    private void calculateDeath(Block block, Block prevBlock) throws Exception {
-    	block.peopleDie((int)(disease.getLethality() * prevBlock.getInfected()));
+    private void calculateDeath(Block block) throws Exception {
+    	for (int i = disease.getIncubationDays(); i < disease.getMaxSickDays(); i++) {
+    		block.peopleDie(i, getAffected(block.getInfectedCohort(i), disease.getLethality()));
+    	}
     }
     
     private void showBlocks(Block[][] blocks) {
@@ -122,5 +141,40 @@ public class DiseaseSim extends JPanel {
     		}
     		System.out.println("");
     	}
-    } 
+    }
+    
+    private static int getAffected(int population, double rate) {
+    	int affected = 0;
+    	if (rate != 0 && population < 2 / rate) {
+    		for (int i = 0; i < population; i++) {
+    			if (Math.random() < rate) {
+    				affected++;
+    			}
+    		}
+    	} else {
+    		affected = (int)(population * rate);
+    	}
+    	return affected;
+    }
+
+	public int getGridWidth() {
+		return gridWidth;
+	}
+
+	public int getGridHeight() {
+		return gridHeight;
+	}
+
+	public int getBlockSize() {
+		return blockSize;
+	}
+
+	public void setBlockSize(int blockSize) {
+		this.blockSize = blockSize;
+	}
+
+	public boolean isVerbose() {
+		return verbose;
+	}
+	
 }
