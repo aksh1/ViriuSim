@@ -122,5 +122,5 @@ public class DiseaseSim extends JPanel {
     		}
     		System.out.println("");
     	}
-    }
+    } 
 }
