@@ -11,6 +11,7 @@ public class DiseaseSim extends JPanel {
     private int gridHeight = 10;
 
     private int currentLayer = 0;
+    private int cycleWait = 1000;
     
     private Disease disease;
     private Block[][][] country;
@@ -49,6 +50,7 @@ public class DiseaseSim extends JPanel {
 	    	int previousLayer = i % gridDuration;
 	    	int layer = (i + 1) % gridDuration;
             try {
+            	Thread.sleep(cycleWait);
 				cycle(country, layer, previousLayer);
 				System.out.println("Cycle #"+(i+1));
 				showBlocks(country[layer]);
@@ -71,12 +73,13 @@ public class DiseaseSim extends JPanel {
 
 	//"infects" the blocks
     private void cycle(final Block[][][] blocks, int layer, int prevLayer) throws Exception {
-    	Thread.sleep(1000);
         for (int x = 0; x < blocks[layer].length; x++) {
             for (int y = 0; y < blocks[layer][x].length; y++) {
             	blocks[layer][x][y].copyBlock(blocks[prevLayer][x][y]);
                 calculateInnerInfection(blocks[layer][x][y], blocks[prevLayer][x][y]);
                 calculateOuterInfection(blocks, layer, prevLayer, x, y);
+                calculateRecovery(blocks[layer][x][y], blocks[prevLayer][x][y]);
+                calculateDeath(blocks[layer][x][y], blocks[prevLayer][x][y]);
 				System.out.println("Block (" + x + "," + y + ") is " + blocks[layer][x][y].percentInfected() + " infected");
                 currentLayer = layer;
             }
@@ -98,6 +101,14 @@ public class DiseaseSim extends JPanel {
     		}
     	}
     	blocks[layer][targetX][targetY].peopleGetSick(Math.min((int)(travelers * disease.getInfectionRate()), blocks[layer][targetX][targetY].getHealthy()));
+    }
+    
+    private void calculateRecovery(Block block, Block prevBlock) throws Exception {
+    	block.peopleRecover((int)(disease.getRecoveryRate() * prevBlock.getInfected()));
+    }
+    
+    private void calculateDeath(Block block, Block prevBlock) throws Exception {
+    	block.peopleDie((int)(disease.getLethality() * prevBlock.getInfected()));
     }
     
     private void showBlocks(Block[][] blocks) {
