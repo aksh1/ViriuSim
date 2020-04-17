@@ -5,41 +5,45 @@ public class DiseaseSim extends JPanel {
 
 	private String diseasePreset;
 	private boolean verbose = false;
-    //Simulation Time
-    private int simulationLength = 10;
-    
-    private int gridDuration = 2;
-    private int gridWidth = 10;
-    private int gridHeight = 10;
-    private int blockSize = 50;
-    
-    private int currentLayer = -1;
-    private int cycleWait = 1000;
-    
-    private Disease disease;
-    private Block[][][] country;
+	//Simulation Time
+	private int simulationLength = 10;
+	private int cycleCount;
 
-    public DiseaseSim(ConfigLoader cfgLoader) {
-    	this.loadFromConfiguration(cfgLoader);
-    	disease = new Disease();
-        disease.loadFromConfiguration(cfgLoader, diseasePreset);
-        country = new Block[gridDuration][gridWidth][gridHeight];
+	private int gridDuration = 2;
+	private int gridWidth = 10;
+	private int gridHeight = 10;
+	private int blockSize = 50;
+
+	private int currentLayer = -1;
+	private int cycleWait = 1000;
+
+	private Disease disease;
+	private Block[][][] country;
+
+	private GraphPanel graphPanel;
+
+	public DiseaseSim(ConfigLoader cfgLoader, GraphPanel graphPanel) {
+		this.graphPanel = graphPanel;
+		this.loadFromConfiguration(cfgLoader);
+		disease = new Disease();
+		disease.loadFromConfiguration(cfgLoader, diseasePreset);
+		country = new Block[gridDuration][gridWidth][gridHeight];
 	}
 
-    public void loadFromConfiguration(ConfigLoader cfgLoader) {
-    	cfgLoader.loadSection("simulation", DiseaseSim.class, this);
-    	System.out.println("Configured values:\n  simulation_length = "+simulationLength);
-    }
+	public void loadFromConfiguration(ConfigLoader cfgLoader) {
+		cfgLoader.loadSection("simulation", DiseaseSim.class, this);
+		System.out.println("Configured values:\n  simulation_length = " + simulationLength);
+	}
 
-    public void runSim() {
-    	for (int i = 0; i < gridDuration; i++) {
-	        for (int x = 0; x < country[i].length; x++) {
-	            for (int y = 0; y < country[i][x].length; y++) {
-	                // population for each block in between 500 and 1000
-	            	if (i == 0) {
-	            		country[i][x][y] = new Block(disease, (int) (Math.random() * 10000 + 5));
-	            	} else {
-	            		country[i][x][y] = new Block();
+	public void runSim() {
+		for (int i = 0; i < gridDuration; i++) {
+			for (int x = 0; x < country[i].length; x++) {
+				for (int y = 0; y < country[i][x].length; y++) {
+					// population for each block in between 500 and 1000
+					if (i == 0) {
+						country[i][x][y] = new Block(disease, (int) (Math.random() * 10000 + 5));
+					} else {
+						country[i][x][y] = new Block();
 	            	}
 	            }
 	        }
@@ -56,9 +60,9 @@ public class DiseaseSim extends JPanel {
             	Thread.sleep(cycleWait);
 				cycle(country, layer, previousLayer);
 				if (isVerbose()) {
-					System.out.println("Cycle #"+(i+1));
+					System.out.println("Cycle #" + (i + 1));
 					showBlocks(country[layer]);
-					System.out.println("");
+					System.out.println();
 				}
 	        }
     	} catch (Exception e) {
@@ -85,21 +89,36 @@ public class DiseaseSim extends JPanel {
 
 	//"infects" the blocks
     private void cycle(final Block[][][] blocks, int layer, int prevLayer) throws Exception {
-        for (int x = 0; x < blocks[layer].length; x++) {
-            for (int y = 0; y < blocks[layer][x].length; y++) {
-            	blocks[layer][x][y].copyBlock(blocks[prevLayer][x][y]);
-                calculateInnerInfection(blocks[layer][x][y], blocks[prevLayer][x][y]);
-                calculateOuterInfection(blocks, layer, prevLayer, x, y);
-                calculateRecovery(blocks[layer][x][y]);
-                calculateDeath(blocks[layer][x][y]);
-                if (isVerbose()) {
-                	System.out.println("Block (" + x + "," + y + ") is " + blocks[layer][x][y].percentInfected() + " infected");
-                }
-                currentLayer = layer;
-            }
-        }
-        this.repaint();
-    }
+		int infected = 0;
+		int deaths = 0;
+		int recovered = 0;
+		int allTimeInfected = 0;
+		for (int x = 0; x < blocks[layer].length; x++) {
+			for (int y = 0; y < blocks[layer][x].length; y++) {
+				blocks[layer][x][y].copyBlock(blocks[prevLayer][x][y]);
+				calculateInnerInfection(blocks[layer][x][y], blocks[prevLayer][x][y]);
+				calculateOuterInfection(blocks, layer, prevLayer, x, y);
+				calculateRecovery(blocks[layer][x][y]);
+				calculateDeath(blocks[layer][x][y]);
+				if (isVerbose()) {
+					System.out.println("Block (" + x + "," + y + ") is " + blocks[layer][x][y].percentInfected() + " infected");
+				}
+				currentLayer = layer;
+				recovered += country[layer][x][y].getRecovered();
+				infected += country[layer][x][y].getInfected();
+				deaths += country[layer][x][y].getDead();
+				allTimeInfected = infected + deaths + recovered;
+			}
+		}
+		cycleCount++;
+		graphPanel.getCurrentlyInfectedGraph().getPoints().add(new Dot(cycleCount, infected));
+		graphPanel.getInfectedGraph().getPoints().add(new Dot(cycleCount, allTimeInfected));
+		graphPanel.getDeadGraph().getPoints().add(new Dot(cycleCount, deaths));
+		graphPanel.getRecoveredGraph().getPoints().add(new Dot(cycleCount, recovered));
+
+		this.repaint();
+		graphPanel.repaint();
+	}
     
     private void calculateInnerInfection(Block block, Block prevBlock) throws Exception {
         block.peopleGetSick(Math.min(getAffected(prevBlock.getInfected(), disease.getInteractionRate() * disease.getInfectionRate()), prevBlock.getHealthy()));
@@ -132,15 +151,15 @@ public class DiseaseSim extends JPanel {
     
     private void showBlocks(Block[][] blocks) {
     	for (int i=0; i < blocks.length; ++i) {
-    		for (int j=0; j < blocks[i].length; ++j) {
-    			System.out.print(String.format("  (%3d, %3d, %3d, %3d)", 
-    					blocks[i][j].getHealthy(),
-    					blocks[i][j].getInfected(),
-    					blocks[i][j].getRecovered(),
-    					blocks[i][j].getDead()));
-    		}
-    		System.out.println("");
-    	}
+			for (int j = 0; j < blocks[i].length; ++j) {
+				System.out.print(String.format("  (%3d, %3d, %3d, %3d)",
+						blocks[i][j].getHealthy(),
+						blocks[i][j].getInfected(),
+						blocks[i][j].getRecovered(),
+						blocks[i][j].getDead()));
+			}
+			System.out.println();
+		}
     }
     
     private static int getAffected(int population, double rate) {
