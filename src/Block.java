@@ -1,84 +1,119 @@
-import java.awt.Color;
+import java.awt.*;
 
-public class Block {
+public class Block extends Component{
 
-    private int population;
-    private int infected;
-    private int interactions;
+    private int healthy;
+    private int[] infectedCohort;
     private int dead;
-    private Color color;
+    private int recovered;
+    private Disease disease;
+    private int initPopulation;
 
-    public Block(int population) {
-        setPopulation(population);
-        setInfected((int) (Math.random() * 10)); // 0 <= infected < 10
-        setInteractions((int) (Math.random() * 20)); // 0 <= average interactions per day < 20
+    public Block(Disease disease, int population) {
+    	this.disease = disease;
+        infectedCohort = new int[disease.getMaxSickDays()];
+    	infectedCohort[0] = (int) (Math.random() * disease.getMaxInitialInfected()); // 0 <= infected < max initial infected
+        healthy = Math.max(population - infectedCohort[0], 0);
+        initPopulation = population;
+        dead = 0;
+        recovered = 0;
     }
+    
+    public Block() {} //intentionally empty
 
-    public int calculateInfection(Disease disease) {
-        int infected = getInfected() * getInteractions() * disease.getInfectionRate() / 100;
-
-        if (getInfected() + infected > getPopulation()) {
-            infected = getPopulation() - getInfected();
-        }
-        setInfected(getInfected() + infected);
-
-        int interactions = getInteractions() - (infected / 50);
-        if (getInteractions() - (infected / 50) < 1) {
-            interactions = 1;
-        }
-        setInteractions(interactions); //interactions go down as disease spreads
-
-        return infected;
+    public void copyBlock(Block that) {
+    	disease = that.disease;
+    	if (infectedCohort == null) {
+    		infectedCohort = new int[disease.getMaxSickDays()];
+    	}
+    	infectedCohort[0] = 0;
+    	for (int i = 1; i < disease.getMaxSickDays(); i++) {
+    		infectedCohort[i] = that.infectedCohort[i - 1];
+    	}
+    	
+    	healthy = that.healthy;
+    	dead = that.dead;
+    	recovered = that.recovered + that.infectedCohort[that.infectedCohort.length - 1];
+    	initPopulation = that.initPopulation;
     }
-
-
-    //Getters & Setters
-
+    
+    //Getters
     public int getDead() {
         return dead;
     }
 
-    public void setDead(int dead) {
-        this.dead = dead;
-    }
-
     public int getPopulation() {
-        return population;
-    }
-
-    public void setPopulation(int population) {
-        this.population = population;
+        return getHealthy() + getInfected() + getRecovered();
     }
 
     public int getInfected() {
-        return infected;
-    }
-
-    public void setInfected(int infected) {
-        this.infected = infected;
-    }
-
-    public int getInteractions() {
-        return interactions;
-    }
-
-    public void setInteractions(int interactions) {
-        this.interactions = interactions;
+        int sum = 0;
+    	for (int i = 0; i < infectedCohort.length; i++) {
+        	sum += infectedCohort[i];
+        }
+    	return sum;
     }
     
-    public Color getColor() {
-        return color;
-    }
+    public int getHealthy() {
+		return healthy;
+	}
+	
+    public int getRecovered() {
+		return recovered;
+	}
 
-    public void setColor() {
-        if (infected <= 0){
-            color = Color.GREEN;
-        }
-        else if (infected/population >= 0.75){
-            color = Color.RED;
-        }
-        else{
-            color = new Color (235, 235-((infected/population)*200), 52);
-        }
+	public Color getColor() {
+		double r = percentInfected() / 100;
+		double g = percentHealthy() / 100;
+		double b = percentRecovered() / 100;
+		double d = 1 - percentDead() / 100;
+        return new Color ((int)(255 * r * d), (int)(255 * g * d), (int)(255 * b * d));
     }
+	
+	// changes
+	public void peopleGetSick(int newlySickCount) throws Exception {
+		if (newlySickCount > getHealthy()) {
+			throw new Exception("can't have more sick than healthy");
+		}
+		healthy  -= newlySickCount;
+		infectedCohort[0] += newlySickCount;
+	}
+	
+	public void peopleDie(int cohortNum, int newlyDeadCount) throws Exception {
+		if (newlyDeadCount > getInfected()) {
+			throw new Exception("can't have more dead than infected");
+		}
+		infectedCohort[cohortNum] -= newlyDeadCount;
+		dead += newlyDeadCount;
+	}
+	
+	public void peopleRecover(int cohortNum, int newlyRecoveredCount) throws Exception {
+		if (newlyRecoveredCount > getInfected()) {
+			throw new Exception("can't have more recovered than infected");
+		}
+		infectedCohort[cohortNum] -= newlyRecoveredCount;
+		recovered += newlyRecoveredCount;
+	}
+
+	public double percentHealthy() {
+        return (double) getHealthy()/getPopulation() * 100;
+    }
+	
+	public double percentInfected() {
+        return (double) getInfected()/getPopulation() * 100;
+    }
+	
+	public double percentDead() {
+		return (double) getDead()/initPopulation * 100;
+	}
+	
+	public double percentRecovered() {
+		return (double) getRecovered()/getPopulation() * 100;
+	}
+
+	public int getInfectedCohort(int i) {
+		return infectedCohort[i];
+	}
+	
+	
 }
