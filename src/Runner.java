@@ -1,4 +1,6 @@
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class Runner {
     public static void main(String[] args) {
@@ -34,9 +36,25 @@ public class Runner {
 //		menuBar.add(optionsMenu);
 //
 //
-//		window.setJMenuBar(menuBar);
+		JMenuBar menuBar = new JMenuBar();
+
+		JMenu menu = new JMenu("Simple Paint");
+		JMenuItem menuItem = new JMenuItem("Quit");
+
+		menuItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+			}
+		});
+
+		menu.add(menuItem);
+		menuBar.add(menu);
+
+
+		window.setJMenuBar(menuBar);
 		window.setContentPane(sim);
-		window.setSize(600,600);
+		window.setSize(250,400);
 		window.setLocation(100,100);
 		window.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
 		window.setVisible(true);
