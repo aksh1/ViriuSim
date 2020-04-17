@@ -32,8 +32,8 @@ public class Block extends Component{
     	}
     	
     	healthy = that.healthy;
-    	dead = that.dead;
-    	recovered = that.recovered + that.infectedCohort[that.infectedCohort.length - 1];
+    	dead = that.dead + (int)(that.infectedCohort[that.infectedCohort.length - 1] / 2);
+    	recovered = that.recovered + (int)(that.infectedCohort[that.infectedCohort.length - 1] / 2);
     	initPopulation = that.initPopulation;
     }
     
@@ -67,6 +67,11 @@ public class Block extends Component{
 		double g = percentHealthy() / 100;
 		double b = percentRecovered() / 100;
 		double d = 1 - percentDead() / 100;
+		
+		if (b > 255) {
+			b = 255;
+		}
+		
         return new Color ((int)(255 * r * d), (int)(255 * g * d), (int)(255 * b * d));
     }
 	

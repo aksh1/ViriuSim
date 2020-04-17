@@ -37,7 +37,7 @@ public class DiseaseSim extends JPanel {
 	            for (int y = 0; y < country[i][x].length; y++) {
 	                // population for each block in between 500 and 1000
 	            	if (i == 0) {
-	            		country[i][x][y] = new Block(disease, (int) (Math.random() * 10000 + 500));
+	            		country[i][x][y] = new Block(disease, (int) (Math.random() * 10000 + 5));
 	            	} else {
 	            		country[i][x][y] = new Block();
 	            	}
