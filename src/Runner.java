@@ -19,6 +19,7 @@ public class Runner {
 		}
 
 		JFrame window = new JFrame("Disease Simulator");
+		JFrame statWindow = new JFrame(("Stats for nerds"));
 		labelPanel = new LabelPanel();
 		graphPanel = new GraphPanel();
 		sim = new DiseaseSim(cfgLoader, graphPanel, labelPanel);
@@ -53,23 +54,23 @@ public class Runner {
 		menu.add(new JMenuItem("Analytics"));
 		menuBar.add(menu);
 
-		JPanel stats = new JPanel();
-		stats.setLayout(new GridLayout(2, 1));
-		stats.add(graphPanel);
-		stats.add(labelPanel);
-
-		JPanel parent = new JPanel(new GridLayout(2, 1));
-
-		parent.add(sim);
-		parent.add(stats);
+		JPanel panel = new JPanel(new GridLayout(2, 1));
+		panel.add(graphPanel);
+		panel.add(labelPanel);
 
 
 		window.setJMenuBar(menuBar);
-		window.setContentPane(parent);
+		window.setContentPane(sim);
 		window.setSize(sim.getBlockSize() * sim.getGridWidth(), (sim.getBlockSize() * sim.getGridHeight() + 50) + 250);
-		window.setLocation(50, 100);
+		window.setLocation(0, 100);
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setVisible(true);
+
+		statWindow.setContentPane(panel);
+		statWindow.setSize(600, (sim.getBlockSize() * sim.getGridHeight() + 50) + 250);
+		statWindow.setLocation(sim.getBlockSize() * sim.getGridWidth(), 100);
+		statWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		statWindow.setVisible(true);
 
 		sim.runSim();
 	}
