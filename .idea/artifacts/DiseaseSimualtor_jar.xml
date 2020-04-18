@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="DiseaseSimualtor:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/DiseaseSimualtor_jar</output-path>
+    <root id="archive" name="DiseaseSimualtor.jar">
+      <element id="module-output" name="DiseaseSimualtor" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/jars/ini4j-0.5.4.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
