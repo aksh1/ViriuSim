@@ -15,6 +15,18 @@ Navigate to releases, and download and run the jar file.
 
 ## Running
 To run, use the "main" method in the "Runner" class. You can modify the "disease.ini" configuration file to set the parameters of the simulation. (More info explaining the parameters are in the configuration file.)
+  MAP COLORS
+    green = healthy (uninfected)
+    blue = recovered (recovered people can't get infected anymore because they have built immunity)
+    red = infected
+    black = dead
+
+  GRAPH COLORS
+    blue = recovered
+    red = all time infected
+    pink = currently infected (This is the "curve" the government is trying to flatten with quarantine)
+    black = dead
+
 
 ## Troubleshooting
 The code and UI are still in development. If you encounter problems, feel free to contact us!
