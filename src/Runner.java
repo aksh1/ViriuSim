@@ -18,6 +18,7 @@ public class Runner {
 		LabelPanel labelPanel = new LabelPanel();
 		GraphPanel graphPanel = new GraphPanel();
 		DiseaseSim sim = new DiseaseSim(cfgLoader, graphPanel, labelPanel);
+		sim.buildSim();
 
 
 		JMenuBar menuBar = new JMenuBar();

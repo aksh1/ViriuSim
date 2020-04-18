@@ -12,6 +12,10 @@ import org.ini4j.Wini;
 public class ConfigLoader {
 	private Wini iniHandle;
 	
+	public Wini getIniHandle() {
+		return iniHandle;
+	}
+	
 	public ConfigLoader(String configFilePath) throws InvalidFileFormatException, IOException {
 		iniHandle = new Wini(new File(configFilePath));
 	}
