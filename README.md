@@ -13,6 +13,11 @@ Java 14
 ## Installing
 Navigate to releases, and download and run the jar file.
 
+## Running
+To run, use the "main" method in the "Runner" class. You can modify the "disease.ini" configuration file to set the parameters of the simulation. (More info explaining the parameters are in the configuration file.)
+
+## Troubleshooting
+The code and UI are still in development. If you encounter problems, feel free to send us an email!
 
 ## Built With
 Java 14
