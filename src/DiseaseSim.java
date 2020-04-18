@@ -21,9 +21,11 @@ public class DiseaseSim extends JPanel {
 	private Block[][][] country;
 
 	private GraphPanel graphPanel;
+	private LabelPanel labelPanel;
 
-	public DiseaseSim(ConfigLoader cfgLoader, GraphPanel graphPanel) {
+	public DiseaseSim(ConfigLoader cfgLoader, GraphPanel graphPanel, LabelPanel labelPanel) {
 		this.graphPanel = graphPanel;
+		this.labelPanel = labelPanel;
 		this.loadFromConfiguration(cfgLoader);
 		disease = new Disease();
 		disease.loadFromConfiguration(cfgLoader, diseasePreset);
@@ -115,9 +117,11 @@ public class DiseaseSim extends JPanel {
 		graphPanel.getInfectedGraph().getPoints().add(new Dot(cycleCount, allTimeInfected));
 		graphPanel.getDeadGraph().getPoints().add(new Dot(cycleCount, deaths));
 		graphPanel.getRecoveredGraph().getPoints().add(new Dot(cycleCount, recovered));
+		labelPanel.updateLabels(deaths, recovered, infected, allTimeInfected);
 
 		this.repaint();
 		graphPanel.repaint();
+		labelPanel.repaint();
 	}
     
     private void calculateInnerInfection(Block block, Block prevBlock) throws Exception {

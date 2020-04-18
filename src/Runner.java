@@ -1,4 +1,5 @@
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -14,9 +15,9 @@ public class Runner {
 		}
 
 		JFrame window = new JFrame("Disease Simulator");
-		JFrame graphs = new JFrame("Stats for nerds");
+		LabelPanel labelPanel = new LabelPanel();
 		GraphPanel graphPanel = new GraphPanel();
-		DiseaseSim sim = new DiseaseSim(cfgLoader, graphPanel);
+		DiseaseSim sim = new DiseaseSim(cfgLoader, graphPanel, labelPanel);
 
 
 		JMenuBar menuBar = new JMenuBar();
@@ -35,20 +36,24 @@ public class Runner {
 		menu.add(new JMenuItem("Analytics"));
 		menuBar.add(menu);
 
+		JPanel stats = new JPanel();
+		stats.setLayout(new GridLayout(2, 1));
+		stats.add(graphPanel);
+		stats.add(labelPanel);
+
+		JPanel parent = new JPanel(new GridLayout(2, 1));
+
+		parent.add(sim);
+		parent.add(stats);
+
 
 		window.setJMenuBar(menuBar);
-		window.setContentPane(sim);
-		window.setSize(sim.getBlockSize() * sim.getGridWidth(), sim.getBlockSize() * sim.getGridHeight() + 50);
+		window.setContentPane(parent);
+		window.setSize(sim.getBlockSize() * sim.getGridWidth(), (sim.getBlockSize() * sim.getGridHeight() + 50) + 250);
 		window.setLocation(50, 100);
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setVisible(true);
 
-		graphs.setContentPane(graphPanel);
-		graphs.setSize(sim.getSimulationLength() / 2, 160);
-		graphs.setLocation(50 + sim.getBlockSize() * sim.getGridWidth() + 1, 100);
-		graphs.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		graphs.setVisible(true);
-
-		sim.runSim(); 
+		sim.runSim();
 	}
 }

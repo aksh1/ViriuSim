@@ -23,6 +23,7 @@ public class GraphPanel extends JPanel {
 
     private Graph recoveredGraph;
 
+
     public GraphPanel() {
     	this.setBackground(Color.LIGHT_GRAY);
         deadGraph = new Graph(DEAD_COLOR);
@@ -37,6 +38,7 @@ public class GraphPanel extends JPanel {
         deadGraph.udpateDraw(g);
         recoveredGraph.udpateDraw(g);
         currentlyInfectedGraph.udpateDraw(g);
+
     }
 
     public Graph getInfectedGraph() {
