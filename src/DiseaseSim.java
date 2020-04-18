@@ -253,10 +253,6 @@ public class DiseaseSim extends JPanel {
 		return blockSize;
 	}
 
-	public void setBlockSize(int blockSize) {
-		this.blockSize = blockSize;
-	}
-
 	public boolean isVerbose() {
 		return verbose;
 	}
