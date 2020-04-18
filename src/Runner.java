@@ -4,9 +4,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class Runner {
+	static LabelPanel labelPanel;
+	static GraphPanel graphPanel;
+	static DiseaseSim sim;
+	static ConfigLoader cfgLoader;
     public static void main(String[] args) {
 		String configFilePath = "disease.ini";
-		ConfigLoader cfgLoader = null;
+		cfgLoader = null;
 		try {
 			cfgLoader = new ConfigLoader(configFilePath);
 		} catch (Exception ex) {
@@ -15,9 +19,9 @@ public class Runner {
 		}
 
 		JFrame window = new JFrame("Disease Simulator");
-		LabelPanel labelPanel = new LabelPanel();
-		GraphPanel graphPanel = new GraphPanel();
-		DiseaseSim sim = new DiseaseSim(cfgLoader, graphPanel, labelPanel);
+		labelPanel = new LabelPanel();
+		graphPanel = new GraphPanel();
+		sim = new DiseaseSim(cfgLoader, graphPanel, labelPanel);
 		sim.buildSim();
 
 
@@ -25,6 +29,7 @@ public class Runner {
 
 		JMenu menu = new JMenu("Options");
 		JMenuItem menuItem = new JMenuItem("Quit");
+		JMenuItem restart = new JMenuItem("Restart");
 
 		menuItem.addActionListener(new ActionListener() {
 			@Override
@@ -33,6 +38,17 @@ public class Runner {
 			}
 		});
 
+		restart.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				labelPanel = new LabelPanel();
+				graphPanel = new GraphPanel();
+				sim = new DiseaseSim(cfgLoader, graphPanel, labelPanel);
+				sim.runSim();
+			}
+		});
+
+		menu.add(restart);
 		menu.add(menuItem);
 		menu.add(new JMenuItem("Analytics"));
 		menuBar.add(menu);
