@@ -1,3 +1,5 @@
-# DiseaseSimulator
+# ViruSim
 
-Simulates the spread of a disease among a grid of "chunks".
+Simulates the spread of a disease throughout chunks.
+
+Uses Java 14 and INI4J
