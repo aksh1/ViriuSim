@@ -28,4 +28,4 @@ Caleb Chua, Jean-Pierre Troin, Akash Vig
 This project is licensed under the MIT License - see the LICENSE.md file for details
 
 ## Acknowledgments
-Jeremiah Wong
+Shoutout to the entire NuevaHacks team for providing us with this thrilling and educational experience!
