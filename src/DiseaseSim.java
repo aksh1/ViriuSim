@@ -200,6 +200,6 @@ public class DiseaseSim extends JPanel {
 		return simulationLength;
 	}
 	
-	
+
 	
 }

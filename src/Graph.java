@@ -25,5 +25,5 @@ public class Graph {
         	//System.out.println("Screen Size Adjusted");
         }
 
-    }
+    } 
 }

@@ -29,7 +29,7 @@ public class GraphPanel extends JPanel {
         recoveredGraph = new Graph(RECOVERED_COLOR);
         currentlyInfectedGraph = new Graph(CURRENTLY_INFECTED);
         infectedGraph = new Graph(INFECTED_COLOR);
-    }
+    } 
 
     @Override
     protected void paintComponent(Graphics g) {

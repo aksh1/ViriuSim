@@ -49,6 +49,6 @@ public class Runner {
 		graphs.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		graphs.setVisible(true);
 
-		sim.runSim();
+		sim.runSim(); 
 	}
 }
