@@ -18,12 +18,11 @@ public class Graph {
 
     public void udpateDraw(Graphics g) {
         try {
-            for (Dot dot :
-                    points) {
+            for (Dot dot : points) {
                 dot.draw(g, lineColor);
             }
         } catch (ConcurrentModificationException hhhh) {
-            System.out.println("Screen Size Adjusted");
+        	//System.out.println("Screen Size Adjusted");
         }
 
     }

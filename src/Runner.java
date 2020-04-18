@@ -38,13 +38,13 @@ public class Runner {
 
 		window.setJMenuBar(menuBar);
 		window.setContentPane(sim);
-		window.setSize(sim.getBlockSize() * sim.getGridWidth(), sim.getBlockSize() * (sim.getGridHeight() + 1));
+		window.setSize(sim.getBlockSize() * sim.getGridWidth(), sim.getBlockSize() * sim.getGridHeight() + 50);
 		window.setLocation(50, 100);
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setVisible(true);
 
 		graphs.setContentPane(graphPanel);
-		graphs.setSize(500, 500);
+		graphs.setSize(sim.getSimulationLength() / 2, 160);
 		graphs.setLocation(50 + sim.getBlockSize() * sim.getGridWidth() + 1, 100);
 		graphs.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		graphs.setVisible(true);

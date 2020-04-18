@@ -195,5 +195,11 @@ public class DiseaseSim extends JPanel {
 	public boolean isVerbose() {
 		return verbose;
 	}
+
+	public int getSimulationLength() {
+		return simulationLength;
+	}
+	
+	
 	
 }

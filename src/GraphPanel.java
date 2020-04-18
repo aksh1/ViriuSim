@@ -24,15 +24,15 @@ public class GraphPanel extends JPanel {
     private Graph recoveredGraph;
 
     public GraphPanel() {
-        infectedGraph = new Graph(INFECTED_COLOR);
+    	this.setBackground(Color.LIGHT_GRAY);
         deadGraph = new Graph(DEAD_COLOR);
         recoveredGraph = new Graph(RECOVERED_COLOR);
         currentlyInfectedGraph = new Graph(CURRENTLY_INFECTED);
+        infectedGraph = new Graph(INFECTED_COLOR);
     }
 
     @Override
     protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
         infectedGraph.udpateDraw(g);
         deadGraph.udpateDraw(g);
         recoveredGraph.udpateDraw(g);

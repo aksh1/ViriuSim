@@ -12,6 +12,6 @@ public class Dot extends Component {
 
     public void draw(Graphics g, Color c) {
         g.setColor(c);
-        g.fillRect(x / 2, 450 - (y / 100000), 1, 1);
+        g.drawLine(x/2, 125 - (y / 100000), x/2, 126 - (y / 100000));
     }
 }
